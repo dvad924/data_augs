@@ -1,0 +1,2 @@
+usage: run_model.py [-h] net iters
+run_model.py: error: too few arguments

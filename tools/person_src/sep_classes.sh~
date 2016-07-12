@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#store class 0 elements
+grep ' 0' ../assign/patch_test.txt ../assign/patch_train.txt 
