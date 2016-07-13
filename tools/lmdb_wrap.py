@@ -142,8 +142,8 @@ class DataAugmentor:
         
         
 if __name__ == '__main__':
-    dest= 'data/lmdb/color_augs/people_color_train_lmdb'
-    src = 'data/lmdb/no_augs/people_train_lmdb'
+    dest= 'data/person_only_lmdb/people_color_patch_train_lmdb'
+    src = 'data/person_only_lmdb/people_patch_train_lmdb'
     lmdb.open(src).copy(dest)
     da = DataAugmentor(dest)
     da.aug_records(da.on_record)
