@@ -1,6 +1,0 @@
-[libprotobuf ERROR google/protobuf/text_format.cc:245] Error parsing text-format caffe.SolverParameter: 2:1: Message type "caffe.SolverParameter" has no field named "ls".
-WARNING: Logging before InitGoogleLogging() is written to STDERR
-F0713 00:16:54.057631 36767 upgrade_proto.cpp:1063] Check failed: ReadProtoFromTextFile(param_file, param) Failed to parse SolverParameter file: nets/person_only/solver.prototxt
-*** Check failure stack trace: ***
-nets/person_only/solver.prototxt
-./tools/train_net.sh: line 7: 36767 Aborted                 (core dumped) python ./tools/run_model.py $NET $ITERS
