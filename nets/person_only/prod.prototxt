@@ -1,39 +1,10 @@
 name: "LeNet"
-layer {
-  name: "mnist"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
-  transform_param {
-    scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_patch_color_mean.binaryproto"
-  }
-  data_param {
-    source: "data/person_only_lmdb/people_patch_train_lmdb"
-    batch_size: 64
-    backend: LMDB
-  }
-}
-layer {
-  name: "mnist"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_patch_color_mean.binaryproto"
-  }
-  data_param {
-    source: "data/person_only_lmdb/people_patch_test_lmdb"
-    batch_size: 100
-    backend: LMDB
-  }
+input:"data"
+input_shape {
+  dim:100
+  dim:3
+  dim:128
+  dim:128
 }
 layer {
   name: "conv1"
@@ -47,7 +18,7 @@ layer {
     lr_mult: 2
   }
   convolution_param {
-    num_output: 96
+    num_output: 20
     kernel_size: 5
     stride: 1
     weight_filler {
@@ -151,20 +122,14 @@ layer {
     }
   }
 }
+
 layer {
-  name: "accuracy"
-  type: "Accuracy"
+  name: "cls_prob"
+  type: "Softmax"
   bottom: "ip2"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
+  top: "cls_prob"
+  loss_param{
+    ignore_label: -1
+    normalize: true
   }
-}
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "ip2"
-  bottom: "label"
-  top: "loss"
 }

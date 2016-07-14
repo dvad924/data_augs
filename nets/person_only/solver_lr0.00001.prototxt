@@ -20,6 +20,6 @@ display: 100
 max_iter: 40000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "models/person_only_lr_0.00001_more_kernels"
+snapshot_prefix: "models/person_only_lr_0.00001"
 # solver mode: CPU or GPU
 solver_mode: GPU
