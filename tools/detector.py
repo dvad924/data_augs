@@ -47,7 +47,7 @@ class MyCaffeNet:
         return self.transformer.preprocess('data',img)
         
     def set_img(self,img):
-        self.net.blobs['data'].data[...] = self.transformer.preprocess('data',img)
+        self.net.blobs['data'].data[...] = img
 
     def run_image(self,imgname):
         img = self.load_image(imgname)
@@ -69,30 +69,61 @@ def parseArgs():
     parser.add_argument('--dir')
     parser.add_argument('--list')
     return parser.parse_args()
+
+def test(dirr,infile,outfile,neg='__background',pos='person'):
+    files2 = []    
+    with open(infile) as fil:
+        for line in fil.readlines():
+            fields = line.split(' ')
+            files2.append(fields[0].strip())
+
+    accs = np.zeros((len(files2),))
+    daccs = np.zeros((len(files2),))
     
+    for i ,f in enumerate(files2):
+        accs[i] = mynet.run_image(os.path.join(dirr,f))
+        if f.find(neg)>=0 :
+            daccs[i] = 0
+        elif f.find(pos) >=0 :
+            daccs[i] = 1
+        print i, daccs[i]
+        
+    pdb.set_trace()
+    val = 'final acc:{}'.format(np.sum(accs==daccs)/(len(files2)*1.0))
+    print val
+    
+    with open(outfile,'w') as fil:
+        fil.write('{}\n'.format(val))
+
 if __name__ == '__main__':
     import pdb
     args = parseArgs()
     mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,args.mean)
     dirr = '/Users/dvad/image_patches/'
     assigndir = '/Users/dvad/image_patches/assign'
-    files = []
+    test(dirr,os.path.join(assigndir,'person_only_train.txt'),'train.txt')
     #train val
-    with open(dirr+'assign/background.txt') as fil:
-        for lin in fil.readlines():
-            fields = lin.split(' ')
-            files.append(fields[0].strip())
+    # with open(dirr+'assign/person_only_test.txt') as fil:
+    #     for lin in fil.readlines():
+    #         fields = lin.split(' ')
+    #         files.append(fields[0].strip())
             
-    accs = np.zeros((len(files),))
-    daccs = np.zeros((len(files),))
+    # accs = np.zeros((len(files),))
+    # daccs = np.zeros((len(files),))
+    # pdb.set_trace()
+    # for i,f in enumerate(files):
+    #     print i
+    #     accs[i] = mynet.run_image(os.path.join(dirr,f))
+    #     if f.find('__background') >=0 :
+    #         daccs[i] = 0
+    #     elif f.find('person') >=0 :
+    #         daccs[i] = 1
+    # pdb.set_trace()
+    # val = 'final acc:{}'.format(np.sum(accs==daccs)/(len(files)*1.0))
+    # print val
+
+    # with open('test.txt','w') as fil:
+    #     fil.write('{}\n'.format(val))
+
     
-    for i,f in enumerate(files):
-        print i
-        accs[i] = mynet.run_image(os.path.join(dirr,f))
-        if f.find('__background'):
-            daccs[i] = 0
-        if f.find('person'):
-            daccs[i] = 1
-        
-    print 'final acc:{}'.format(np.sum(accs==daccs)/len(files))
-    
+            
