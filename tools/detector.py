@@ -19,7 +19,6 @@ class MyCaffeNet:
             self.set_mean()
         self.prepare_net()
         self.set_transform()
-
         
     def prepare_net(self):
         caffe.set_mode_cpu()
@@ -28,7 +27,6 @@ class MyCaffeNet:
         
     def set_mean(self):
         blob = caffe.proto.caffe_pb2.BlobProto()
-
         blob.ParseFromString(open(self.meanfile,'rb').read())
         mean = caffe.io.blobproto_to_array(blob)
         shp = mean.shape
@@ -38,12 +36,12 @@ class MyCaffeNet:
     def set_transform(self):
         transformer = caffe.io.Transformer({'data':self.net.blobs['data'].data.shape})
         transformer.set_transpose('data',(2,0,1))
+        transformer.set_raw_scale('data',255)
         transformer.set_mean('data',self.mu)
-        transformer.set_raw_scale('data',self.scale)
+        transformer.set_input_scale('data',float(1.0/256))
         transformer.set_channel_swap('data',(2,1,0))
-        
         self.transformer = transformer
-
+        
     def load_image(self,imgname):
         img = caffe.io.load_image(imgname)
         return self.transformer.preprocess('data',img)
@@ -55,11 +53,11 @@ class MyCaffeNet:
         img = self.load_image(imgname)
         self.set_img(img)
         self.net.forward()
+        fname = imgname.split('/')[-1]
         clas = self.net.blobs[cfg.out].data.argmax(1)
-        print self.net.blobs['cls_prob'].data
-        prob = self.net.blobs[cfg.out].data
-        print 'class:{}, prob:{}\n'.format(clas,prob)
-        
+        prob = self.net.blobs['cls_prob'].data
+        print '{} class:{}, prob:{}\n'.format(fname,clas,prob)
+        return clas[0]
     
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -67,13 +65,34 @@ def parseArgs():
     parser.add_argument('weights')
     parser.add_argument('--mean')
     parser.add_argument('--scale')
-    parser.add_argument('image')
+    parser.add_argument('--image')
+    parser.add_argument('--dir')
+    parser.add_argument('--list')
     return parser.parse_args()
     
 if __name__ == '__main__':
     import pdb
     args = parseArgs()
-    mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,args.mean,args.scale)
-
-    mynet.run_image(args.image)
+    mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,args.mean)
+    dirr = '/Users/dvad/image_patches/'
+    assigndir = '/Users/dvad/image_patches/assign'
+    files = []
+    #train val
+    with open(dirr+'assign/background.txt') as fil:
+        for lin in fil.readlines():
+            fields = lin.split(' ')
+            files.append(fields[0].strip())
+            
+    accs = np.zeros((len(files),))
+    daccs = np.zeros((len(files),))
+    
+    for i,f in enumerate(files):
+        print i
+        accs[i] = mynet.run_image(os.path.join(dirr,f))
+        if f.find('__background'):
+            daccs[i] = 0
+        if f.find('person'):
+            daccs[i] = 1
+        
+    print 'final acc:{}'.format(np.sum(accs==daccs)/len(files))
     
