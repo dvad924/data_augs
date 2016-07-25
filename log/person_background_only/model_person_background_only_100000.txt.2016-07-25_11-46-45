@@ -1,0 +1,174 @@
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+I0725 11:46:46.764322 19455 solver.cpp:48] Initializing solver from parameters: 
+test_iter: 172
+test_interval: 100
+base_lr: 1e-05
+display: 100
+max_iter: 40000
+lr_policy: "inv"
+gamma: 5e-05
+power: 0.75
+momentum: 0.9
+weight_decay: 2e-05
+snapshot: 5000
+snapshot_prefix: "models/person_background_only/person_background_only_lr_0.00001"
+solver_mode: GPU
+net: "nets/person_background_only/trainval.prototxt"
+I0725 11:46:46.764411 19455 solver.cpp:91] Creating training net from net file: nets/person_background_only/trainval.prototxt
+I0725 11:46:46.764659 19455 net.cpp:313] The NetState phase (0) differed from the phase (1) specified by a rule in layer mnist
+I0725 11:46:46.764683 19455 net.cpp:313] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0725 11:46:46.764739 19455 net.cpp:49] Initializing net from parameters: 
+name: "LeNet"
+state {
+  phase: TRAIN
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+    mean_file: "data/person_only_lmdb/person_background_only_mean.binaryproto"
+  }
+  data_param {
+    source: "data/person_only_lmdb/person_background_only_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 96
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "ip2"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ip2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}
+I0725 11:46:46.764780 19455 layer_factory.hpp:77] Creating layer mnist
+I0725 11:46:46.765496 19455 net.cpp:91] Creating Layer mnist
+I0725 11:46:46.765517 19455 net.cpp:399] mnist -> data
+I0725 11:46:46.765529 19455 net.cpp:399] mnist -> label
+I0725 11:46:46.765542 19455 data_transformer.cpp:25] Loading mean file from: data/person_only_lmdb/person_background_only_mean.binaryproto
+F0725 11:46:46.765558 19455 io.cpp:54] Check failed: fd != -1 (-1 vs. -1) File not found: data/person_only_lmdb/person_background_only_mean.binaryproto
+*** Check failure stack trace: ***
+nets/person_background_only/solver.prototxt
+./tools/train_net.sh: line 7: 19455 Aborted                 (core dumped) python ./tools/run_model.py $NET $ITERS
