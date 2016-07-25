@@ -9,7 +9,7 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_mean.binaryproto"
+    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
   }
   data_param {
     source: "data/person_only_lmdb/person_background_only_train_lmdb"
@@ -27,7 +27,7 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_mean.binaryproto"
+    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
   }
   data_param {
     source: "data/person_only_lmdb/person_background_only_test_lmdb"
