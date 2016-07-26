@@ -95,6 +95,36 @@ def move_data(datalen,data):
 
     return (traindata,testdata)
 
+def person_vs_background_vs_random(trainfactor=0.66,testfactor=0.34):
+    #open the file containing person filenames
+    persons = readfiles(os.path.join(tdir,'person.txt'))
+    #open the file containing bacground filenames
+    background = readfiles(os.path.join(tdir,'backgroundshuffle.txt'))
+    #open the file containing random object filenames
+    random = readfiles(os.path.join(tdir,'random.txt'))
+    
+    persons = map(assign_class('1'),persons)
+    background = map(assign_class('0'),background)
+    random = map(assign_class('2'),random)
+
+    persond = sift_data(persons,person_prefix)
+    ptr,pte = partition_groups(persond,len(persons))
+    
+    randomd = sift_data(random,back_prefix)
+    randcontr_size = len(ptr)
+    rtr,rte = partition_groups(randomd,randcontr_size)
+    
+    backgroundd = sift_data(background,back_prefix)
+    backcontr_size = len(ptr)
+    btr,bte = partition_groups(backgroundd,backcontr_size)
+
+    train = ptr + rtr + btr
+    test  = pte + rte + bte
+
+    writelabels(os.path.join(tdir,'person_vs_background_vs_random_train.txt'),train);
+    writelabels(os.path.join(tdir,'person_vs_background_vs_random_test.txt'),test);
+
+
 
 def person_vs_backgroundandrandom_together(trainfactor=0.66,testfactor=0.34):
     #open the file containing person filenames
@@ -122,7 +152,6 @@ def person_vs_backgroundandrandom_together(trainfactor=0.66,testfactor=0.34):
 
     train = ptr + rtr +btr
     test = pte + rte + bte
-
 
     writelabels(os.path.join(tdir,'person_vs_backgroundandrandom_train.txt'),train);
     writelabels(os.path.join(tdir,'person_vs_backgroundandrandom_test.txt'),test);
@@ -155,5 +184,6 @@ def person_vs_backgroundonly(trainfactor=0.66,testfactor=0.34):
     
     
 if __name__ == '__main__':
-    person_vs_backgroundonly();
-    person_vs_backgroundandrandom_together();
+    #person_vs_backgroundonly();
+    #person_vs_backgroundandrandom_together();
+    person_vs_background_vs_random()
