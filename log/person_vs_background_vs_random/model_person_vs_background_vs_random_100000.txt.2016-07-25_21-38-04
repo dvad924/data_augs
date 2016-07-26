@@ -1,4 +1,27 @@
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+I0725 21:38:05.655259 22904 solver.cpp:48] Initializing solver from parameters: 
+test_iter: 240
+test_interval: 500
+base_lr: 1e-05
+display: 100
+max_iter: 40000
+lr_policy: "inv"
+gamma: 5e-05
+power: 0.75
+momentum: 0.9
+weight_decay: 2e-05
+snapshot: 5000
+snapshot_prefix: "models/person_vs_background_vs_random/person_vs_background_vs_random_lr_0.00001"
+solver_mode: GPU
+net: "nets/person_vs_background_vs_random/trainval.prototxt"
+I0725 21:38:05.655339 22904 solver.cpp:91] Creating training net from net file: nets/person_vs_background_vs_random/trainval.prototxt
+I0725 21:38:05.655647 22904 net.cpp:313] The NetState phase (0) differed from the phase (1) specified by a rule in layer mnist
+I0725 21:38:05.655670 22904 net.cpp:313] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0725 21:38:05.655726 22904 net.cpp:49] Initializing net from parameters: 
 name: "LeNet"
+state {
+  phase: TRAIN
+}
 layer {
   name: "mnist"
   type: "Data"
@@ -9,29 +32,11 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
+    mean_file: "data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto"
   }
   data_param {
-    source: "data/person_only_lmdb/person_background_only_train_lmdb"
-    batch_size: 64
-    backend: LMDB
-  }
-}
-layer {
-  name: "mnist"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
-  }
-  data_param {
-    source: "data/person_only_lmdb/person_background_only_test_lmdb"
-    batch_size: 100
+    source: "data/person_only_lmdb/person_vs_background_vs_random_train_lmdb"
+    batch_size: 128
     backend: LMDB
   }
 }
@@ -142,7 +147,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 2
+    num_output: 3
     weight_filler {
       type: "xavier"
     }
@@ -152,19 +157,15 @@ layer {
   }
 }
 layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "ip2"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
-  }
-}
-layer {
   name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "ip2"
   bottom: "label"
   top: "loss"
 }
+I0725 21:38:05.655763 22904 layer_factory.hpp:77] Creating layer mnist
+I0725 21:38:05.656472 22904 net.cpp:91] Creating Layer mnist
+I0725 21:38:05.656496 22904 net.cpp:399] mnist -> data
+I0725 21:38:05.656507 22904 net.cpp:399] mnist -> label
+I0725 21:38:05.656517 22904 data_transformer.cpp:25] Loading mean file from: data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto
+I0725 21:38:05.658061 22911 db_lmdb.cpp:35] Opened lmdb data/person_only_lmdb/person_vs_background_vs_random_train_lmdb

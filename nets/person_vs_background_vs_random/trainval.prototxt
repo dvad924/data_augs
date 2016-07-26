@@ -9,10 +9,10 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
+    mean_file: "data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto"
   }
   data_param {
-    source: "data/person_only_lmdb/person_background_only_train_lmdb"
+    source: "data/person_only_lmdb/person_vs_background_vs_random_train_lmdb"
     batch_size: 64
     backend: LMDB
   }
@@ -27,10 +27,10 @@ layer {
   }
   transform_param {
     scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
+    mean_file: "data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto"
   }
   data_param {
-    source: "data/person_only_lmdb/person_background_only_test_lmdb"
+    source: "data/person_only_lmdb/person_vs_background_vs_random_test_lmdb"
     batch_size: 100
     backend: LMDB
   }
@@ -142,7 +142,7 @@ layer {
     lr_mult: 2
   }
   inner_product_param {
-    num_output: 2
+    num_output: 3
     weight_filler {
       type: "xavier"
     }
