@@ -9,9 +9,10 @@ import detector_utils as DU
 import argparse
 import detconfig as cfg
 import skimage.data
+import time
 
 class MyCaffeNet:
-    def __init__(self,net_arch,weights,mode,mean=None,scale=256,shape=None):
+    def __init__(self,net_arch,weights,mode,mean=None,scale=256,shape=None,procmode='cpu'):
         self.arch = net_arch
         self.weights = weights
         self.mode = mode
@@ -20,17 +21,30 @@ class MyCaffeNet:
         if self.meanfile:
             self.set_mean()
         if shape:
-            self.prepare_net(shape=shape)
+            self.prepare_net(shape=shape,procmode=procmode)
         else:
-            self.prepare_net()
+            self.prepare_net(procmode=procmode)
         self.set_transform()
         
-    def prepare_net(self,shape=(1,3,128,128)):
-        caffe.set_mode_cpu()
+    def prepare_net(self,shape=(1,3,128,128),procmode='cpu'):
+        if(procmode == 'cpu'):
+            caffe.set_mode_cpu()
+        else:
+            caffe.set_mode_gpu()
         self.net = caffe.Net(self.arch,self.weights,self.mode)
         depth,channels,height,width = shape
         self.net.blobs['data'].reshape(depth,channels,height,width)
-        
+    
+    def get_depth(self):
+        depth,channels,height,width = self.net.blobs['data'].shape
+        return depth
+
+    def get_shape(self):
+        return  self.net.blobs['data'].shape
+
+    def set_shape(self,depth,channels,height,width):
+        self.net.blobs['data'].reshape(depth,channels,height,width)
+
     def set_mean(self):
         blob = caffe.proto.caffe_pb2.BlobProto()
         blob.ParseFromString(open(self.meanfile,'rb').read())
@@ -57,6 +71,7 @@ class MyCaffeNet:
         #this will be a time bottleneck
         props = DU.selective_window(img)
         return img,props
+
     def set_img(self,img):
         self.net.blobs['data'].data[...] = img
 
@@ -78,10 +93,18 @@ class MyCaffeNet:
         return clas[0]
 
     def run_batch(self,imgs,logfile=None):
+        batchsize,c,h,w = self.get_shape()
+        if len(imgs) < batchsize:
+            self.set_shape(len(imgs),c,h,w)
+        s = time.clock()
         self.set_imgs(imgs) #set the images into the network batch
+        print 'batch set time = {}'.format(time.clock() - s)
+        s = time.clock()
         self.net.forward()  #run the batch through the network
+        print 'process time = {}'.format(time.clock() - s)
         clas = self.net.blobs[cfg.out].data.argmax(1) #grab the assigned class labels
-        prob = self.net.blobs['cls_prob'].data
+        prob = self.net.blobs['cls_prob'].data.max(1) # grab the associated probablities
+        self.set_shape(batchsize,c,h,w)
         return clas,prob
     
     def propose_and_detect(self,imgname,logfile=None):
@@ -89,14 +112,19 @@ class MyCaffeNet:
         rects = map(lambda x:x['rect'],props)
         images = [img[y:y+h,x:x+w,:] for x,y,w,h in rects]
         batchsize,c,h,w = self.net.blobs['data'].data.shape
+        goodrects = []
         for i in xrange(0,np.ceil(float(len(images)/(batchsize*1.0)))):
             l = i * batchsize
             u = min((i+1) * batchsize,len(images))
             batch = images[l:u]
-            if len(batch) < batchsize:
-                self.net.blobs['data'].reshape(len(batch),c,h,w)
             clas,prob =  self.run_batch(batch)
+            batchrects = rects[l:u]
+            idx = clas == 1
+            goodrects += batchrects[idx]
+
+        return img,goodrects;            
         
+            
         
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -107,7 +135,70 @@ def parseArgs():
     parser.add_argument('--image')
     parser.add_argument('--dir')
     parser.add_argument('--list')
+    parser.add_argument('--procmode')
+    parser.add_argument('--outfile')
     return parser.parse_args()
+
+def calc_class_accuracy(gt_class,calc_class,indicator_groups):
+    # implement
+    # gt_classs
+    gt_mapped = np.zeros(len(gt_class))
+    calc_class_mapped = np.zeros(len(calc_class))
+    for ix,group in enumerate(indicator_groups):
+        gt_mapped[np.in1d(gt_class,group)] = ix
+        calc_class_mapped[np.in1d(calc_class,group)] = ix
+
+    length = float(len(gt_class)*1.0)
+    total = float(np.sum(gt_mapped == calc_class_mapped)*1.0)
+    
+    acc = total/length
+    return acc
+
+        
+
+def test_batch(net,dir,infile,outfile,clasmap=[(0,),(1,),(2,)]):
+    files = []
+    classes = []
+    logfile = outfile+'.log'
+    lfile = open(logfile,'a')
+    with open(infile) as fil:
+        for line in fil.readlines():
+            fields = line.split(' ')
+            files.append(fields[0].strip())
+            if fields[1].strip():
+                classes.append(int(fields[1].strip()))
+    accs = np.zeros((len(files),))
+    daccs = np.zeros((len(files),))
+    probs = np.zeros((len(files),))
+    bsize = net.get_depth()
+    if len(classes) > 0:
+        daccs = np.array(classes)
+        usename = False
+    batches = range(0,len(files),bsize)
+    for ix, pos in enumerate(batches):
+        s = time.clock()
+        ulimit = batches[ix+1] if ix+1 < len(batches) else len(files)
+        if ulimit == len(files):
+            pdb.set_trace()
+        batch = [net.load_image(os.path.join(dir,imgname)) for imgname in files[pos:ulimit]]
+        print 'batch load time = {}'.format(time.clock() - s)
+       
+        clas,prob = net.run_batch(batch)
+       
+        accs[pos:ulimit] = clas
+        probs[pos:ulimit] = prob
+        acc_est = calc_class_accuracy(daccs[pos:ulimit],clas,clasmap)
+        print 'Batch Accuracy: {}'.format(acc_est)
+        
+    pdb.set_trace()
+    final_acc = calc_class_accuracy(daccs,accs,clasmap)
+    val = 'final acc:{}'.format(final_acc)
+    print val
+
+    with open(outfile,'w') as fil:
+        fil.write('{}\n'.format(val))
+    
+    
 
 def test(dirr,infile,outfile,clasmap={'__background':0,'person':1}):
     files2 = []
@@ -143,14 +234,26 @@ def test(dirr,infile,outfile,clasmap={'__background':0,'person':1}):
     with open(outfile,'w') as fil:
         fil.write('{}\n'.format(val))
 
+def run_test(args,shape=(64,3,128,128),clas_clusters=[(0,),(1,)]):
+    procmode = 'gpu' if args.procmode is None or args.procemode =='gpu' else 'cpu'
+    mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,mean=args.mean,
+                       shape=shape,procmode=procmode)
+    imdir = args.dir
+    flist = args.list
+    outfile = args.outfile
+    test_batch(mynet,imdir,flist,outfile,clas_clusters)
+
 if __name__ == '__main__':
     import pdb
     args = parseArgs()
-    mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,args.mean)
-    ###########################random objects test###############
-    dirr = '/Users/dvad/image_patches/'
-    assigndir = '/Users/dvad/image_patches/assign/random.txt'
-    test(dirr,assigndir,'randomresults.txt',)
+
+    run_test(args)
+    # mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,mean=args.mean,shape=(64,3,128,128),procmode='gpu')
+    # ###########################random objects test###############
+    # dirr = 'data/person/image_patches/'
+    # assigndir = 'data/person/assign/person_vs_background_vs_random_test.txt'
+    # #test(dirr,assigndir,'p_v_b_v_r_results.txt')
+    # test_batch(dirr,assigndir,'p_v_b_v_r_batch_br_merge_results.txt',[(0,2),(1,)])
     ###########################peta data test######################
     # dirr = '/Volumes/DVBackBox/PetaData/PETA/orgdata/images'
     # assigndir = '/Volumes/DVBackBox/PetaData/PETA/orgdata/assign'
