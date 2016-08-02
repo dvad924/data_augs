@@ -28,18 +28,38 @@ def sliding_window(img,window=(138,60),hstep=25,wstep=25):
     
 
 
-def selective_window(img,scale=300,sigma=0.8,mins=20):
+def selective_window(img,scale=300,sigma=0.8,mins=10):
     #this is a time bottleneck
-    im_lables,regions = selectivesearch(img,scale=scale,sigma=sigma,min_size=mins);
-
-    true_regions = set()
-    for reg in region:
-        if reg in true_regions:
+    im_lables,regions = selective_search(img,scale=scale,sigma=sigma,min_size=mins);
+    true_regions = set([])
+    print '# of regions: {}'.format(len(regions))
+    for reg in regions:
+        if reg['rect'] in true_regions:
             continue
         if reg['size'] < 100:
             continue
         true_regions.add(reg['rect'])
     return true_regions
+
+class Evaluator:
+    def __init__(self, file_list):
+        if not os.path.exists(file_list):
+            return
+        self.img_files = []
+        with open(file_list) as f:
+            for lin in f.readlines():
+                fields = lin.split(' ')
+                fil = fields[0].strip()
+                self.img_files.append(fil)
+    
+    def set_annotations (self, annots):
+        self.data_annots = annots
+    def get_file_annotation(self,id):
+        return self.data_annots[id]
+
+    
+    
+        
 
 def area(box):
     return box[2] * box[3]
@@ -70,13 +90,64 @@ def calc_accuracy(gt_boxes, p_boxes):
     matches = np.zeros(max(len(gt_boxes),len(p_boxes)))
     for p in p_boxes:
         for gt in gt_boxes:#needs to be implemented
-            
-                       
-                       
-if __name__ == '__main__':
+            continue
+    
+class box_merger:
+    def merge_boxes(self,boxes):
+        clusters = self.cluster_regions(boxes)
+        self.bfs(clusters)
+        return self.collapse_rects()
+
+    def collapse_rects(self):
+        comps = self.ccs.values()
+        regions = []
+        for component in comps:
+            regions.append(self.collapse_rect(component))
+        return regions
+
+    def collapse_rect(self,comp):
+        sty,stx = min(comp,key=lambda x:x[0])[0],min(comp,key=lambda x:x[1])[1]
+        ey,ex = max(comp,key=lambda x:x[0]+x[2]),max(comp,key=lambda x:x[0]+x[3])
+        ey = ey[0] + ey[2]
+        ex = ex[1] + ex[3]
+        return sty,stx,ey-sty,ex-stx
 
     
 
+    def bfs(self,graph):
+        self.ccs = {}
+        nodes = set(graph.keys())
+        while len(nodes) > 0:
+            node = list(nodes)[0]
+            if node not in self.ccs.keys():
+                self.ccs[node] = set([node])
+                self.ccs[node] = self.ccs[node] | self.bfrun(graph,node)
+                nodes = nodes - self.ccs[node]
+                
+    def bfrun(self,graph,start):
+        visited = set()
+        queue = [start]
+        while queue:
+            vertex = queue.pop(0)
+            if vertex not in visited:
+                visited.add(vertex)
+                queue.extend(graph[vertex] - visited)
+        return visited
+    
+    def cluster_regions(self,regions):
+        regions = map(lambda x:(x[0],x[1],x[2],x[3]),regions)
+        region_graph = {}
+        for x in xrange(0,len(regions)):
+            region_graph[regions[x]] = set()
+        for i in xrange(0,len(regions)-1):
+            for j in xrange(i+1,len(regions)):
+                if box_intersect(regions[i],regions[j]) > 0:
+                    region_graph[regions[i]].add(regions[j])
+                    region_graph[regions[j]].add(regions[i])
+        return region_graph
+                
+                       
+if __name__ == '__main__':    
     import pdb
     pdb.set_trace()
     # img = cv2.imread(os.path.join(testdir,'1001.jpg'))

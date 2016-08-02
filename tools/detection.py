@@ -1,14 +1,18 @@
+import matplotlib as mpl
+mpl.use('Agg')
+
 import numpy as np
 import detector as DET
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import skimage.data
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
+    import skimage.data
+
     net = DET.MyCaffeNet('nets/person_vs_background_vs_random/prod.prototxt',
                    'models/person_vs_background_vs_random/person_vs_background_vs_random_lr_0.00001_iter_100000.caffemodel',
                    mean='data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto',
-                   procmode='gpu')
+                         procmode='gpu', shape=(64,3,128,128))
 
     img,rects = net.propose_and_detect('/home/dl/DVDPL/Caffe/caffe/data/person_clsfy_data/actions3/orgdata/images/1001.jpg')
 
@@ -22,4 +26,4 @@ if __name__ == '__main__':
                                linewidth=1)
         ax.add_patch(r)
 
-    plt.show()
+    plt.savefig('imgdisplay.png')

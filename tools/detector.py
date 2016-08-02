@@ -12,7 +12,7 @@ import skimage.data
 import time
 
 class MyCaffeNet:
-    def __init__(self,net_arch,weights,mode,mean=None,scale=256,shape=None,procmode='cpu'):
+    def __init__(self,net_arch,weights,mode=caffe.TEST,mean=None,scale=256,shape=None,procmode='cpu'):
         self.arch = net_arch
         self.weights = weights
         self.mode = mode
@@ -69,7 +69,9 @@ class MyCaffeNet:
     def load_and_propose(self,imgname):
         img = caffe.io.load_image(imgname);
         #this will be a time bottleneck
+        print 'beginning selective search'
         props = DU.selective_window(img)
+        print 'terminating selective search'
         return img,props
 
     def set_img(self,img):
@@ -107,24 +109,30 @@ class MyCaffeNet:
         self.set_shape(batchsize,c,h,w)
         return clas,prob
     
+    
+
     def propose_and_detect(self,imgname,logfile=None):
         img,props = self.load_and_propose(imgname)
-        rects = map(lambda x:x['rect'],props)
-        images = [img[y:y+h,x:x+w,:] for x,y,w,h in rects]
+        rects = list(props)
+        images = [self.transformer.preprocess('data',img[y:y+h,x:x+w,:]) for x,y,w,h in rects]
         batchsize,c,h,w = self.net.blobs['data'].data.shape
-        goodrects = []
-        for i in xrange(0,np.ceil(float(len(images)/(batchsize*1.0)))):
+        goodrects = np.zeros((0,4)) #fore is known at compile as a rectangles is determined by 4 datapoints
+        import pdb
+        pdb.set_trace()
+        for i in xrange(0,int(np.ceil(float(len(images)/(batchsize*1.0))))):
             l = i * batchsize
             u = min((i+1) * batchsize,len(images))
             batch = images[l:u]
             clas,prob =  self.run_batch(batch)
             batchrects = rects[l:u]
             idx = clas == 1
-            goodrects += batchrects[idx]
-
+            goodrects = np.concatenate((goodrects, np.array(batchrects)[idx]))
+        box_merger = DU.box_merger()
+        goodrects = map(list,box_merger.merge_boxes(goodrects))
         return img,goodrects;            
         
-            
+    
+        
         
 def parseArgs():
     parser = argparse.ArgumentParser()
@@ -226,7 +234,7 @@ def test(dirr,infile,outfile,clasmap={'__background':0,'person':1}):
                     daccs[i] = clasmap[key]
                     break
             print i, daccs[i]
-        
+    
     pdb.set_trace()
     val = 'final acc:{}'.format(np.sum(accs==daccs)/(len(files2)*1.0))
     print val
