@@ -33,10 +33,14 @@ def selective_window(img,scale=300,sigma=0.8,mins=10):
     im_lables,regions = selective_search(img,scale=scale,sigma=sigma,min_size=mins);
     true_regions = set([])
     print '# of regions: {}'.format(len(regions))
+
     for reg in regions:
         if reg['rect'] in true_regions:
             continue
         if reg['size'] < 100:
+            continue
+        (x,y,w,h) = reg['rect']
+        if not (w*h > 0 and w/h < 4 and  h/w < 4):
             continue
         true_regions.add(reg['rect'])
     return true_regions
@@ -106,13 +110,11 @@ class box_merger:
         return regions
 
     def collapse_rect(self,comp):
-        sty,stx = min(comp,key=lambda x:x[0])[0],min(comp,key=lambda x:x[1])[1]
-        ey,ex = max(comp,key=lambda x:x[0]+x[2]),max(comp,key=lambda x:x[0]+x[3])
-        ey = ey[0] + ey[2]
-        ex = ex[1] + ex[3]
-        return sty,stx,ey-sty,ex-stx
-
-    
+        stx,sty = min(comp,key=lambda x:x[0])[0],min(comp,key=lambda x:x[1])[1]
+        ex,ey = max(comp,key=lambda x:x[0]+x[2]),max(comp,key=lambda x:x[0]+x[3])
+        ey = ey[1] + ey[3]
+        ex = ex[0] + ex[2]
+        return stx,sty,ex-stx,ey-sty
 
     def bfs(self,graph):
         self.ccs = {}

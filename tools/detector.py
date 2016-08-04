@@ -115,10 +115,11 @@ class MyCaffeNet:
         img,props = self.load_and_propose(imgname)
         rects = list(props)
         images = [self.transformer.preprocess('data',img[y:y+h,x:x+w,:]) for x,y,w,h in rects]
+        probs = np.array([])
         batchsize,c,h,w = self.net.blobs['data'].data.shape
-        goodrects = np.zeros((0,4)) #fore is known at compile as a rectangles is determined by 4 datapoints
-        import pdb
-        pdb.set_trace()
+        goodrects = np.zeros((0,4)) #four is known at compile as a rectangles is determined by 4 datapoints
+
+
         for i in xrange(0,int(np.ceil(float(len(images)/(batchsize*1.0))))):
             l = i * batchsize
             u = min((i+1) * batchsize,len(images))
@@ -126,10 +127,12 @@ class MyCaffeNet:
             clas,prob =  self.run_batch(batch)
             batchrects = rects[l:u]
             idx = clas == 1
+            probs = np.concatenate((probs,prob[idx]))
             goodrects = np.concatenate((goodrects, np.array(batchrects)[idx]))
         box_merger = DU.box_merger()
         goodrects = map(list,box_merger.merge_boxes(goodrects))
-        return img,goodrects;            
+        goodrects = map(lambda x: map(lambda y: int(y),x),goodrects)
+        return img,goodrects,probs;            
         
     
         
