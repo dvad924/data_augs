@@ -1,5 +1,5 @@
 # The train/test net protocol buffer definition
-net: "nets/person_background_and_random/trainval.prototxt"
+net: "nets/person_background_and_random_alex_net/trainval.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 # In the case of MNIST, we have test batch size 100 and 100 test iterations,
 # covering the full 10,000 testing images.
@@ -7,7 +7,7 @@ test_iter: 310
 # Carry out testing every 500 training iterations.
 test_interval: 500
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.00001
+base_lr: 0.001
 momentum: 0.9
 weight_decay: 0.00002
 # The learning rate policy
@@ -20,6 +20,6 @@ display: 100
 max_iter: 40000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "models/person_background_and_random/person_background_and_random_lr_0.00001"
+snapshot_prefix: "models/person_background_and_random_alex_net/person_background_and_random_alex_net_lr_0.001"
 # solver mode: CPU or GPU
 solver_mode: GPU

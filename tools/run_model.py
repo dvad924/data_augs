@@ -15,18 +15,15 @@ class MySolver:
     def __init__(self,net_arch):
         self.solverfile = os.path.join('nets',net_arch,'solver.prototxt')
         self.trainvalfile = os.path.join('nets',net_arch,'trainval.prototxt')
+        print self.solverfile
         
     def solve(self,max_iter):
         caffe.set_mode_gpu()
-        print self.solverfile
         solver = caffe.get_solver(self.solverfile)
         deltas = np.zeros((200,0))
         i = 0
         timegrain = 200
         for i in  xrange( max_iter+1):
-            if i% timegrain==0:
-                print 'iter: {}s'.format(deltas.sum()/timegrain)
-                i = 0
             s = time.clock() 
             solver.step(1)
             e = time.clock()
