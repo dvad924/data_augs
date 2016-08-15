@@ -12,13 +12,16 @@ import time
 solver = None
 
 class MySolver:
-    def __init__(self,net_arch):
+    def __init__(self,net_arch,gpu=0):
         self.solverfile = os.path.join('nets',net_arch,'solver.prototxt')
         self.trainvalfile = os.path.join('nets',net_arch,'trainval.prototxt')
+        self.gpu_id = gpu
         print self.solverfile
         
     def solve(self,max_iter):
         caffe.set_mode_gpu()
+        if self.gpu_id is not None:
+            caffe.set_device(self.gpu_id)
         solver = caffe.get_solver(self.solverfile)
         deltas = np.zeros((200,0))
         i = 0
@@ -34,10 +37,11 @@ def parseArgs():
     parser = ag.ArgumentParser()
     parser.add_argument('net',help='The name of the network to run')
     parser.add_argument('iters',type=int,help='The number of iterations to train with')
+    parser.add_argument('--gpu',type=int,help='Include the GPU id for the server env')
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = parseArgs()
 
-    msolver = MySolver(args.net)
+    msolver = MySolver(args.net,gpu=args.gpu)
     msolver.solve(args.iters)
