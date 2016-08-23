@@ -1,0 +1,21 @@
+WARNING: Logging before InitGoogleLogging() is written to STDERR
+I0817 12:24:26.752707  9695 solver.cpp:48] Initializing solver from parameters: 
+test_iter: 172
+test_interval: 100
+base_lr: 0.001
+display: 100
+max_iter: 40000
+lr_policy: "inv"
+gamma: 0.5
+power: 0.75
+momentum: 0.9
+weight_decay: 2e-05
+stepsize: 1000
+snapshot: 10000
+snapshot_prefix: "models/person_background_only_alex_net/person_background_only_alex_net_no_scale_lr_0.001"
+solver_mode: GPU
+net: "nets/person_background_only_alex_net_no_scale/trainval.prototxt"
+F0817 12:24:26.752943  9695 solver.cpp:438] Cannot write to snapshot prefix 'models/person_background_only_alex_net/person_background_only_alex_net_no_scale_lr_0.001'.  Make sure that the directory exists and is writeable.
+*** Check failure stack trace: ***
+nets/person_background_only_alex_net_no_scale/solver.prototxt
+./tools/train_net.sh: line 13:  9695 Aborted                 (core dumped) python ./tools/run_model.py $NET $ITERS $GPU

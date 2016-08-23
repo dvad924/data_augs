@@ -31,7 +31,7 @@ layer {
     mean_file: "data/person_only_lmdb/person_background_only_color_mean.binaryproto"
   }
   data_param {
-    source: "data/person_only_lmdb/person_background_only_test_lmdb"
+    source: "data/person_only_lmdb/person_vs_background_vs_random_test_lmdb"
     batch_size: 100
     backend: LMDB
   }

@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 sys.path.insert(0,'/home/dl/DVDPL/Caffe/caffe/python')
-import cv2 
+
 import caffe
 import matplotlib.pyplot as plt
 import os
@@ -165,7 +165,19 @@ def calc_class_accuracy(gt_class,calc_class,indicator_groups):
     acc = total/length
     return acc
 
-        
+
+def lmdb_test(arch,weight,iters,clasmap=[(0,),(1,),(2,)]):
+    caffe.set_mode_gpu()
+    net = caffe.Net(arch,weight,caffe.TEST)
+    daccs = np.array([])
+    accs = np.array([])
+    for i in xrange(iters):
+        net.forward()
+        daccs = np.append(daccs,net.blobs['label'].data)
+        accs  = np.append(accs,np.argmax(net.blobs['fc8'].data,axis=1))
+        print i
+    effectiveAcc = calc_class_accuracy(daccs,accs,clasmap)
+    print effectiveAcc
 
 def test_batch(net,dir,infile,outfile,clasmap=[(0,),(1,),(2,)]):
     files = []
@@ -253,12 +265,17 @@ def run_test(args,shape=(64,3,128,128),clas_clusters=[(0,),(1,)]):
     flist = args.list
     outfile = args.outfile
     test_batch(mynet,imdir,flist,outfile,clas_clusters)
+    
 
 if __name__ == '__main__':
     import pdb
     args = parseArgs()
 
-    run_test(args)
+    lmdb_test('nets/person_background_and_random_alex_net/prod.prototxt',
+              'models/person_background_and_random_alex_net/person_background_and_random_alex_net_lr_0.001_iter_100000.caffemodel',
+              240,clasmap=[(0,2),(1,)])
+    
+    #run_test(args)
     # mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,mean=args.mean,shape=(64,3,128,128),procmode='gpu')
     # ###########################random objects test###############
     # dirr = 'data/person/image_patches/'

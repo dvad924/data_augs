@@ -12,7 +12,7 @@ momentum: 0.9
 weight_decay: 0.00002
 # The learning rate policy
 lr_policy: "inv"
-gamma: 0.5
+gamma: 0.00005
 power: 0.75
 # Display every 100 iterations
 display: 100
@@ -21,6 +21,6 @@ max_iter: 40000
 # snapshot intermediate results
 snapshot: 10000
 stepsize:1000
-snapshot_prefix: "models/person_background_only_alex_net/person_background_only_alex_net_lr_0.001"
+snapshot_prefix: "models/person_background_only_alex_net/person_background_only_alex_net_newserver_lr_0.001"
 # solver mode: CPU or GPU
 solver_mode: GPU

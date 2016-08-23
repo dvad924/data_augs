@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import cv2
+
 from selectivesearch import selective_search
 testdir = '/Users/dvad/code/deepLearning/peta/src/actions3/orgdata/images/'
 
