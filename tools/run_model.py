@@ -12,10 +12,11 @@ import time
 solver = None
 
 class MySolver:
-    def __init__(self,net_arch,gpu=0):
+    def __init__(self,net_arch,gpu=0,weights=None):
         self.solverfile = os.path.join('nets',net_arch,'solver.prototxt')
         self.trainvalfile = os.path.join('nets',net_arch,'trainval.prototxt')
         self.gpu_id = gpu
+        self.weights = weights
         print self.solverfile
         
     def solve(self,max_iter):
@@ -38,6 +39,7 @@ def parseArgs():
     parser.add_argument('net',help='The name of the network to run')
     parser.add_argument('iters',type=int,help='The number of iterations to train with')
     parser.add_argument('--gpu',type=int,help='Include the GPU id for the server env')
+    parser.add_argument('--ft',type=bool,action='store_true')
     return parser.parse_args()
 
 if __name__ == '__main__':
