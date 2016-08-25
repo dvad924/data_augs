@@ -7,7 +7,7 @@ test_iter: 1141
 # Carry out testing every 500 training iterations.
 test_interval: 5000
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.001
+base_lr: 0.00001
 momentum: 0.9
 weight_decay: 0.00002
 # The learning rate policy
@@ -21,6 +21,6 @@ max_iter: 220000
 # snapshot intermediate results
 snapshot: 20000
 stepsize:20000
-snapshot_prefix: "models/coco_all_classes_alex_net/coco_alex_net_inv_lrv_0.001"
+snapshot_prefix: "models/coco_all_classes_alex_net/coco_alex_net_inv_lrv_0.00001"
 # solver mode: CPU or GPU
 solver_mode: GPU
