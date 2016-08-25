@@ -13,7 +13,7 @@ layer {
   }
   data_param {
     source: "data/person_only_lmdb/person_vs_background_vs_random_train_lmdb"
-    batch_size: 64
+    batch_size: 128
     backend: LMDB
   }
 }

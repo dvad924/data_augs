@@ -1,11 +1,50 @@
 name: "LeNet"
-input:"data"
-input_shape {
-  dim:100
-  dim:3
-  dim:128
-  dim:128
+# input:"data"
+# input_shape {
+#   dim:100
+#   dim:3
+#   dim:128
+#   dim:128
+# }
+
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+    mean_file: "data/person_only_lmdb/person_background_and_random_color_mean.binaryproto"
+  }
+  data_param {
+    source: "data/person_only_lmdb/person_background_and_random_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
 }
+
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+    mean_file: "data/person_only_lmdb/person_background_and_random_color_mean.binaryproto"
+  }
+  data_param {
+    source: "data/person_only_lmdb/person_vs_background_vs_random_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+
 layer {
   name: "conv1"
   type: "Convolution"
