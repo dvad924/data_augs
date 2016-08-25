@@ -39,7 +39,6 @@ def parseArgs():
     parser.add_argument('net',help='The name of the network to run')
     parser.add_argument('iters',type=int,help='The number of iterations to train with')
     parser.add_argument('--gpu',type=int,help='Include the GPU id for the server env')
-    parser.add_argument('--ft',type=bool,action='store_true')
     return parser.parse_args()
 
 if __name__ == '__main__':

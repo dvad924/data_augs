@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "./tools/run_model.py", line 46, in <module>
+    args = parseArgs()
+  File "./tools/run_model.py", line 42, in parseArgs
+    parser.add_argument('--ft',type=bool,action='store_true')
+  File "/usr/lib/python2.7/argparse.py", line 1294, in add_argument
+    action = action_class(**kwargs)
+TypeError: __init__() got an unexpected keyword argument 'type'

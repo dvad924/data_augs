@@ -6,7 +6,7 @@ import detector as DET
 import os
 import cv2
 
-savedir = 'tests/detections/'
+savedir = 'tests/detections_alexnet_full_train/'
 personclass = 1;
 def write_det_rez(rects,fname):
     
@@ -40,10 +40,15 @@ if __name__ == '__main__':
     import matplotlib.patches as mpatches
     import skimage.data
 
-    net = DET.MyCaffeNet('nets/person_vs_background_vs_random/prod.prototxt',
-                   'models/person_vs_background_vs_random/person_vs_background_vs_random_lr_0.00001_iter_100000.caffemodel',
-                   mean='data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto',
+    # net = DET.MyCaffeNet('nets/person_vs_background_vs_random/prod.prototxt',
+    #                'models/person_vs_background_vs_random/person_vs_background_vs_random_lr_0.00001_iter_100000.caffemodel',
+    #                mean='data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto',
+    #                      procmode='gpu', shape=(64,3,128,128))
+    net = DET.MyCaffeNet('nets/person_vs_background_vs_random_alex_net/prod.prototxt',
+                         'models/person_vs_background_vs_random/person_vs_background_vs_random_alex_net_newserver_lr_0.00074_iter_100000.caffemodel',
+                         mean='data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto',
                          procmode='gpu', shape=(64,3,128,128))
+
     filedir = '/home/dl/DVDPL/Caffe/caffe/data/person_clsfy_data/actions3/orgdata/images/'
     for fname in os.listdir(filedir):
         if os.path.splitext(fname)[1] == '.jpg':

@@ -12,7 +12,7 @@ import skimage.data
 import time
 
 class MyCaffeNet:
-    def __init__(self,net_arch,weights,mode=caffe.TEST,mean=None,scale=256,shape=None,procmode='cpu'):
+    def __init__(self,net_arch,weights,mode=caffe.TEST,mean=None,scale=256,shape=None,procmode='cpu',gpuid=1):
         self.arch = net_arch
         self.weights = weights
         self.mode = mode
@@ -31,6 +31,7 @@ class MyCaffeNet:
             caffe.set_mode_cpu()
         else:
             caffe.set_mode_gpu()
+            caffe.set_device(gpuid)
         self.net = caffe.Net(self.arch,self.weights,self.mode)
         depth,channels,height,width = shape
         self.net.blobs['data'].reshape(depth,channels,height,width)
