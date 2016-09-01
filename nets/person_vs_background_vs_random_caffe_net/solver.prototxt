@@ -7,7 +7,7 @@ test_iter: 240
 # Carry out testing every 500 training iterations.
 test_interval: 500
 # The base learning rate, momentum and the weight decay of the network.
-base_lr: 0.001
+base_lr: 0.0001
 momentum: 0.9
 weight_decay: 0.00002
 # The learning rate policy
@@ -21,6 +21,6 @@ max_iter: 40000
 # snapshot intermediate results
 snapshot: 10000
 stepsize: 10000
-snapshot_prefix: "models/person_vs_background_vs_random_caffe_net/person_vs_background_vs_random_alex_net_pre_trained__lr_0.001"
+snapshot_prefix: "models/person_vs_background_vs_random_caffe_net/person_vs_background_vs_random_alex_net_pre_trained__lr_0.1"
 # solver mode: CPU or GPU
 solver_mode: GPU

@@ -175,7 +175,7 @@ def lmdb_test(arch,weight,iters,clasmap=[(0,),(1,),(2,)]):
     for i in xrange(iters):
         net.forward()
         daccs = np.append(daccs,net.blobs['label'].data)
-        accs  = np.append(accs,np.argmax(net.blobs['fc8'].data,axis=1))
+        accs  = np.append(accs,np.argmax(net.blobs['ip2'].data,axis=1))
         print i
     effectiveAcc = calc_class_accuracy(daccs,accs,clasmap)
     print effectiveAcc
@@ -272,26 +272,30 @@ if __name__ == '__main__':
     import pdb
     args = parseArgs()
 
-    lmdb_test('nets/person_background_only_alex_net/prod.prototxt',
-              'models/person_background_only_alex_net/person_background_only_alex_net_newserver_lr_0.001_iter_100000.caffemodel',
+    lmdb_test('nets/person_vs_background_vs_random/trainval.prototxt',
+              'models/person_vs_background_vs_random/person_vs_background_vs_random_lr_0.00001_iter_100000.caffemodel',
               240,clasmap=[(0,2),(1,)])
+    
+    # lmdb_test('nets/person_background_only_alex_net/prod.prototxt',
+    #           'models/person_background_only_alex_net/person_background_only_alex_net_newserver_lr_0.001_iter_100000.caffemodel',
+    #           240,clasmap=[(0,2),(1,)])
 
-    lmdb_test('nets/person_background_and_random_alex_net/prod.prototxt',
-              'models/person_background_and_random_alex_net/person_background_and_random_alex_net_lr_0.001_iter_100000.caffemodel',
-              240,clasmap=[(0,2),(1,)])
+    # lmdb_test('nets/person_background_and_random_alex_net/prod.prototxt',
+    #           'models/person_background_and_random_alex_net/person_background_and_random_alex_net_lr_0.001_iter_100000.caffemodel',
+    #           240,clasmap=[(0,2),(1,)])
               
-    lmdb_test('nets/person_vs_background_vs_random_alex_net/trainval.prototxt',
-              'models/person_vs_background_vs_random_alex_net/person_vs_background_vs_random_alex_net_newserver_lr_0.0006_iter_100000.caffemodel',
-              240,clasmap=[(0,2),(1,)])
+    # lmdb_test('nets/person_vs_background_vs_random_alex_net/trainval.prototxt',
+    #           'models/person_vs_background_vs_random_alex_net/person_vs_background_vs_random_alex_net_newserver_lr_0.0006_iter_100000.caffemodel',
+    #           240,clasmap=[(0,2),(1,)])
 
     
-    lmdb_test('nets/person_vs_background_vs_random_alex_net/trainval.prototxt',
-              'models/person_vs_background_vs_random_alex_net/person_vs_background_vs_random_alex_net_newserver_lr_0.00074_iter_100000.caffemodel',
-              240,clasmap=[(0,2),(1,)])
+    # lmdb_test('nets/person_vs_background_vs_random_alex_net/trainval.prototxt',
+    #           'models/person_vs_background_vs_random_alex_net/person_vs_background_vs_random_alex_net_newserver_lr_0.00074_iter_100000.caffemodel',
+    #           240,clasmap=[(0,2),(1,)])
 
-    lmdb_test('nets/person_vs_background_vs_random_pre_trained_alex_net/trainval.prototxt',
-              'models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained__lr_0.001_iter_40000.caffemodel',
-              240, clasmap=[(0,2),(1,)])
+    # lmdb_test('nets/person_vs_background_vs_random_pre_trained_alex_net/trainval.prototxt',
+    #           'models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained__lr_0.001_iter_40000.caffemodel',
+    #           240, clasmap=[(0,2),(1,)])
     #run_test(args)
     # mynet = MyCaffeNet(args.net,args.weights,caffe.TEST,mean=args.mean,shape=(64,3,128,128),procmode='gpu')
     # ###########################random objects test###############
