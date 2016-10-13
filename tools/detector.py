@@ -199,9 +199,9 @@ def lmdb_test(arch,weight,iters,clasmap=[(0,),(1,),(2,)]):
         net.forward()
         daccs = np.append(daccs,net.blobs['label'].data)
         accs  = np.append(accs,np.argmax(net.blobs['fc8'].data,axis=1))
-    print float(np.sum(daccs == accs)/float(len(accs)))
+    print 'Global Accuracy: {}'.format(float(np.sum(daccs == accs)/float(len(accs))))
     effectiveAcc = calc_class_accuracy(daccs,accs,clasmap)
-    print effectiveAcc
+    print 'Accuracy Human Vs 20 others: {}'.format(effectiveAcc)
 
 def test_batch(net,dir,infile,outfile,clasmap=[(0,),(1,),(2,)]):
     files = []
@@ -293,14 +293,22 @@ def run_test(args,shape=(64,3,128,128),clas_clusters=[(0,),(1,)]):
 if __name__ == '__main__':
 
     args = parseArgs()
+    ##### 21class no pre training #####
+    lmdb_test('nets/21class_pascal_plus_pre_trained_alex_net/trainval.prototxt',
+              'models/21class_pascal_plus_pre_trained_alex_net/21class_pascal_plus_pre_trained_alex_net_lr_0.001_iter_100000.caffemodel',
+              240,clasmap=[(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20),(1,)])
+    ##### 21class pascal pre trained #####
+    # lmdb_test('nets/21class_pascal_plus_actually_pre_trained_alex_net/trainval.prototxt',
+    #           'models/21class_pascal_plus_actually_pre_trained_alex_net/21class_pascal_plus_pre_trained_alex_net_lr_0.001_iter_100000.caffemodel',
+    #           240,clasmap=[(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20),(1,)])
     #####self trained peta test####
     # lmdb_test('nets/person_vs_background_vs_random_alex_net/petatest.prototxt',
     #           'models/person_vs_background_vs_random_alex_net/person_vs_background_vs_random_alex_net_newserver_lr_0.00074_iter_100000.caffemodel',
     #           240,clasmap=[(0,2),(1,)])
     #####pretrained peta test####
-    lmdb_test('nets/person_vs_background_vs_random_pre_trained_alex_net/petatest.prototxt',
-              'models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained_lr_0.001_iter_100000.caffemodel',
-              240,clasmap=[(0,2),(1,)])
+    # lmdb_test('nets/person_vs_background_vs_random_pre_trained_alex_net/petatest.prototxt',
+    #           'models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained_lr_0.001_iter_100000.caffemodel',
+    #           240,clasmap=[(0,2),(1,)])
 
     # lmdb_test('nets/person_vs_background_vs_random_pre_trained_alex_net/trainval.prototxt',
     #           'models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained_lr_0.001_iter_100000.caffemodel',
