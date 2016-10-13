@@ -2,10 +2,10 @@
 # Compute the mean image from the person training lmdb
 # N.B. this is available in ../data/
 
-DATA=data/person_only_lmdb
+DATA=data/lmdb
 TOOLS=$CAFFE_ROOT/build/tools
 
-$TOOLS/compute_image_mean $DATA/person_vs_background_vs_random_256_train_lmdb \
-  $DATA/coco_color_mean.binaryproto
+$TOOLS/compute_image_mean $DATA/pascal_plus_21cls_train_lmdb \
+  $DATA/21class_mean.binaryproto
 
 echo "Done."

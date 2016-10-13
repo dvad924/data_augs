@@ -1,0 +1,16 @@
+E1013 18:09:43.061817 17278 caffe.cpp:78] Available caffe actions:
+E1013 18:09:43.062172 17278 caffe.cpp:81] 	device_query
+E1013 18:09:43.062186 17278 caffe.cpp:81] 	test
+E1013 18:09:43.062193 17278 caffe.cpp:81] 	time
+E1013 18:09:43.062199 17278 caffe.cpp:81] 	train
+F1013 18:09:43.062206 17278 caffe.cpp:83] Unknown action: train -iterations 100000 -solver nets/21class_pascal_plus_actually_pre_trained_alex_net/solver.prototxt -weights models/pre_trained_alex_net/bvlc_alexnet.caffemodel 
+*** Check failure stack trace: ***
+    @     0x7fa53f4bedaa  (unknown)
+    @     0x7fa53f4bece4  (unknown)
+    @     0x7fa53f4be6e6  (unknown)
+    @     0x7fa53f4c1687  (unknown)
+    @           0x405fa4  main
+    @     0x7fa53dd19f45  (unknown)
+    @           0x4067a3  (unknown)
+    @              (nil)  (unknown)
+./tools/fine_tune.sh: line 13: 17278 Aborted                 (core dumped) $CAFFE_ROOT/build/tools/caffe "train -iterations $ITERS -solver nets/$NET/solver.prototxt -weights models/pre_trained_alex_net/bvlc_alexnet.caffemodel "

@@ -24,14 +24,8 @@ class MySolver:
         if self.gpu_id is not None:
             caffe.set_device(self.gpu_id)
         solver = caffe.get_solver(self.solverfile)
-        deltas = np.zeros((200,0))
-        i = 0
-        timegrain = 200
         for i in  xrange( max_iter+1):
-            s = time.clock() 
             solver.step(1)
-            e = time.clock()
-            deltas[i%timegrain] = e-s
 
 
 def parseArgs():
@@ -39,6 +33,7 @@ def parseArgs():
     parser.add_argument('net',help='The name of the network to run')
     parser.add_argument('iters',type=int,help='The number of iterations to train with')
     parser.add_argument('--gpu',type=int,help='Include the GPU id for the server env')
+    parser.add_argument('--weights',help='the location of the pretrained weights file')
     return parser.parse_args()
 
 if __name__ == '__main__':

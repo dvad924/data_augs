@@ -22,13 +22,25 @@ def sliding_window(img,window=(138,60),hstep=25,wstep=25):
     points = [(y,x) for y in ys for x in xs]
     
 
-    frames = [img[y:y+height,x:x+width] for (y,x) in points]
+    frames = [[y,x,y+height,x+width] for (y,x) in points]
 
     return frames
-    
+
+def multi_sliding_window(img,window=(138,60),hstep=25,wstep=25,scalestep=0.8,numscales=4):
+    height,width = window
+
+    scaleframes = []
+    for x in range(0,numscales):
+        scale = scalestep**x
+        h = scale * height    
+        w = scale * width
+        hs = scale * hstep
+        ws = scale * wstep
+        scaleframes += sliding_window(img,window=(h,w),hstep=hs,wstep=ws)
+    return scaleframes
 
 
-def selective_window(img,scale=300,sigma=0.8,mins=10):
+def selective_window(img,scale=300,sigma=0.8,mins=100):
     #this is a time bottleneck
     im_lables,regions = selective_search(img,scale=scale,sigma=sigma,min_size=mins);
     true_regions = set([])
@@ -143,7 +155,7 @@ class box_merger:
             region_graph[regions[x]] = set()
         for i in xrange(0,len(regions)-1):
             for j in xrange(i+1,len(regions)):
-                if box_intersect(regions[i],regions[j]) > 0:
+                if box_intersect(regions[i],regions[j]) > 0.5:
                     region_graph[regions[i]].add(regions[j])
                     region_graph[regions[j]].add(regions[i])
         return region_graph

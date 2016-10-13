@@ -14,7 +14,7 @@ def _load_annotation(index):
         return _load_pascal_annotation(fnamexml)
 
 def _grab_annotation(path,index):
-    f = index.split('.')[0]
+    f = '.'.join(index.split('.')[:-1])
     print index,f
     fnametxt = os.path.join(path,f+'.txt')
     fnamexml = os.path.join(path,f+'.xml')
@@ -54,12 +54,12 @@ def _grab_custom_annotation(fname):
     for ix,obj in enumerate(data):
         fields = obj.split(' ')
         cls = fields[0]
-        x1 = int(fields[1])
-        y1 = int(fields[2])
-        x2 = int(fields[3])
-        y2 = int(fields[4])
+        x1 = int(fields[1])-1
+        y1 = int(fields[2])-1
+        w = int(fields[3])
+        h = int(fields[4])
 
-        boxes[ix,:]=[x1,y1,x2,y2]
+        boxes[ix,:]=[x1,y1,x1+w,y1+h]
         labels.append(cls)
     return labels,boxes
 

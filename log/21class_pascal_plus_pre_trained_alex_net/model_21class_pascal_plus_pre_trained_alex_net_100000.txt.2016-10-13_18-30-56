@@ -1,0 +1,2 @@
+usage: run_model.py [-h] [--gpu GPU] [--weights WEIGHTS] net iters
+run_model.py: error: unrecognized arguments: $

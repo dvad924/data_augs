@@ -1,6 +1,36 @@
-name: "CaffeNet"
+I0904 22:23:58.929648 23760 caffe.cpp:210] Use CPU.
+I0904 22:24:00.966228 23760 solver.cpp:48] Initializing solver from parameters: 
+test_iter: 10
+test_interval: 1000
+base_lr: 0.001
+display: 100
+max_iter: 100000
+lr_policy: "inv"
+gamma: 5e-05
+power: 0.75
+momentum: 0.9
+weight_decay: 2e-05
+stepsize: 10000
+snapshot: 20000
+snapshot_prefix: "models/person_vs_background_vs_random_pre_trained_alex_net/person_vs_background_vs_random_alex_net_pre_trained_lr_0.001"
+solver_mode: CPU
+net: "nets/person_vs_background_vs_random_pre_trained_alex_net/trainval.prototxt"
+train_state {
+  level: 0
+  stage: ""
+}
+I0904 22:24:00.966410 23760 solver.cpp:91] Creating training net from net file: nets/person_vs_background_vs_random_pre_trained_alex_net/trainval.prototxt
+I0904 22:24:00.969024 23760 net.cpp:322] The NetState phase (0) differed from the phase (1) specified by a rule in layer mnist
+I0904 22:24:00.969056 23760 net.cpp:322] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0904 22:24:00.969235 23760 net.cpp:58] Initializing net from parameters: 
+name: "AlexNet"
+state {
+  phase: TRAIN
+  level: 0
+  stage: ""
+}
 layer {
-  name: "data"
+  name: "mnist"
   type: "Data"
   top: "data"
   top: "label"
@@ -14,24 +44,6 @@ layer {
   data_param {
     source: "data/person_only_lmdb/person_vs_background_vs_random_train_lmdb"
     batch_size: 128
-    backend: LMDB
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00390625
-    mean_file: "data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto"
-  }
-  data_param {
-    source: "data/person_only_lmdb/person_vs_background_vs_random_test_lmdb"
-    batch_size: 100
     backend: LMDB
   }
 }
@@ -58,7 +70,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0
     }
   }
 }
@@ -69,20 +81,9 @@ layer {
   top: "conv1"
 }
 layer {
-  name: "pool1"
-  type: "Pooling"
-  bottom: "conv1"
-  top: "pool1"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
-}
-layer {
   name: "norm1"
   type: "LRN"
-  bottom: "pool1"
+  bottom: "conv1"
   top: "norm1"
   lrn_param {
     local_size: 5
@@ -91,9 +92,20 @@ layer {
   }
 }
 layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "norm1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
   name: "conv2"
   type: "Convolution"
-  bottom: "norm1"
+  bottom: "pool1"
   top: "conv2"
   param {
     lr_mult: 1
@@ -114,7 +126,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0.1
     }
   }
 }
@@ -125,20 +137,9 @@ layer {
   top: "conv2"
 }
 layer {
-  name: "pool2"
-  type: "Pooling"
-  bottom: "conv2"
-  top: "pool2"
-  pooling_param {
-    pool: MAX
-    kernel_size: 3
-    stride: 2
-  }
-}
-layer {
   name: "norm2"
   type: "LRN"
-  bottom: "pool2"
+  bottom: "conv2"
   top: "norm2"
   lrn_param {
     local_size: 5
@@ -147,9 +148,20 @@ layer {
   }
 }
 layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "norm2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
   name: "conv3"
   type: "Convolution"
-  bottom: "norm2"
+  bottom: "pool2"
   top: "conv3"
   param {
     lr_mult: 1
@@ -203,7 +215,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0.1
     }
   }
 }
@@ -237,7 +249,7 @@ layer {
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0.1
     }
   }
 }
@@ -259,7 +271,7 @@ layer {
   }
 }
 layer {
-  name: "fc6n"
+  name: "fc6new"
   type: "InnerProduct"
   bottom: "pool5"
   top: "fc6"
@@ -275,11 +287,11 @@ layer {
     num_output: 4096
     weight_filler {
       type: "gaussian"
-      std: 1
+      std: 0.005
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0.1
     }
   }
 }
@@ -299,7 +311,7 @@ layer {
   }
 }
 layer {
-  name: "fc7n"
+  name: "fc7new"
   type: "InnerProduct"
   bottom: "fc6"
   top: "fc7"
@@ -315,11 +327,11 @@ layer {
     num_output: 4096
     weight_filler {
       type: "gaussian"
-      std: 1
+      std: 0.005
     }
     bias_filler {
       type: "constant"
-      value: 1
+      value: 0.1
     }
   }
 }
@@ -339,7 +351,7 @@ layer {
   }
 }
 layer {
-  name: "fc8n"
+  name: "fc8new"
   type: "InnerProduct"
   bottom: "fc7"
   top: "fc8"
@@ -355,22 +367,12 @@ layer {
     num_output: 3
     weight_filler {
       type: "gaussian"
-      std: 1
+      std: 0.01
     }
     bias_filler {
       type: "constant"
       value: 0
     }
-  }
-}
-layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "fc8"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
   }
 }
 layer {
@@ -380,3 +382,18 @@ layer {
   bottom: "label"
   top: "loss"
 }
+I0904 22:24:00.969383 23760 layer_factory.hpp:77] Creating layer mnist
+I0904 22:24:00.970741 23760 net.cpp:100] Creating Layer mnist
+I0904 22:24:00.970765 23760 net.cpp:408] mnist -> data
+I0904 22:24:00.970880 23760 net.cpp:408] mnist -> label
+I0904 22:24:00.970955 23760 data_transformer.cpp:25] Loading mean file from: data/person_only_lmdb/person_vs_background_vs_random_color_mean.binaryproto
+I0904 22:24:00.973001 23770 db_lmdb.cpp:35] Opened lmdb data/person_only_lmdb/person_vs_background_vs_random_train_lmdb
+I0904 22:24:00.974411 23760 data_layer.cpp:41] output data size: 128,3,128,128
+I0904 22:24:00.998306 23760 net.cpp:150] Setting up mnist
+I0904 22:24:00.998476 23760 net.cpp:157] Top shape: 128 3 128 128 (6291456)
+I0904 22:24:00.998497 23760 net.cpp:157] Top shape: 128 (128)
+I0904 22:24:00.998502 23760 net.cpp:165] Memory required for data: 25166336
+I0904 22:24:00.998512 23760 layer_factory.hpp:77] Creating layer conv1
+I0904 22:24:00.998535 23760 net.cpp:100] Creating Layer conv1
+I0904 22:24:00.998543 23760 net.cpp:434] conv1 <- data
+I0904 22:24:00.998561 23760 net.cpp:408] conv1 -> conv1
